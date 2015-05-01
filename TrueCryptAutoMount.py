@@ -2,11 +2,9 @@ import os
 import sys
 import wmi
 import time
-import pickle
 import winreg
 import win32api
 import platform
-import threading
 import functools
 import pythoncom
 import subprocess
@@ -17,8 +15,8 @@ __version__ = "0.2.0"
 
 # Windows7 Taskbar Grouping (Don't group with Python)
 if platform.system() == 'Windows' and platform.release() == '7':
-    import ctypes
-    ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID('TrueCryp_AutoMount')
+	import ctypes
+	ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID('TrueCrypt_AutoMount')
 
 class GenericThread(QtCore.QThread):
 	def __init__(self, function, *args, **kwargs):
@@ -780,7 +778,12 @@ def on_close(win):
 		
 	
 if __name__ == "__main__":
-	os.chdir(os.path.dirname(sys.argv[0]))
+	if getattr(sys, 'frozen', False):
+		# The application is frozen
+		os.chdir(os.path.dirname(os.path.abspath(sys.executable)))
+	else:
+		# The application is not frozen
+		os.chdir(os.path.dirname(os.path.abspath(__file__)))
 	interface = wmi.WMI()
 	app = QtGui.QApplication(sys.argv)
 	win = TrueCrypt_AutoMounter(interface)

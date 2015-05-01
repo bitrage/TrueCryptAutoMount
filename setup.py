@@ -20,25 +20,25 @@ for path in qt_library_path:
             shutil.copy(file, os.path.join(local_imageformats_path, os.path.basename(file)))
 
 # Dependencies are automatically detected, but it might need fine tuning.
-includefiles = ['gui.ui',
-				'about.ui',
-				'batch.ui',
-                'imageformats/qgif4.dll',
-                'icons/ico16.png',
-                'icons/ico24.png',
-                'icons/ico32.png',
-                'icons/ico48.png',
-                'icons/tc_logo.gif',
-                'icons/readme.html',
-                'icons/silk/drive.png',
-                'icons/silk/drive_add.png',
-                'icons/silk/drive_cd.png',
-                'icons/silk/drive_link.png',
-                'icons/silk/drive_network.png',
-                'icons/silk/drive_flash.png',
-                'icons/silk/drive_go.png',
-                'icons/silk/drive_error.png',
-                'icons/silk/application_double.png']
+includefiles = [('gui.ui','gui.ui'),
+				('about.ui','about.ui'),
+				('batch.ui','batch.ui'),
+                ('imageformats/qgif4.dll','imageformats/qgif4.dll'),
+                ('icons/ico16.png','icons/ico16.png'),
+                ('icons/ico24.png','icons/ico24.png'),
+                ('icons/ico32.png','icons/ico32.png'),
+                ('icons/ico48.png','icons/ico48.png'),
+                ('icons/tc_logo.gif','icons/tc_logo.gif'),
+                ('icons/readme.html','icons/readme.html'),
+                ('icons/silk/drive.png','icons/silk/drive.png'),
+                ('icons/silk/drive_add.png','icons/silk/drive_add.png'),
+                ('icons/silk/drive_cd.png','icons/silk/drive_cd.png'),
+                ('icons/silk/drive_link.png','icons/silk/drive_link.png'),
+                ('icons/silk/drive_network.png','icons/silk/drive_network.png'),
+                ('icons/silk/drive_flash.png','icons/silk/drive_flash.png'),
+                ('icons/silk/drive_go.png','icons/silk/drive_go.png'),
+                ('icons/silk/drive_error.png','icons/silk/drive_error.png'),
+                ('icons/silk/application_double.png','icons/silk/application_double.png')]
 includes = ['sip', 'PyQt4.QtCore']
 build_exe_options = {"icon": "icons/logo.ico", 'include_files': includefiles, 'includes':includes}
 
