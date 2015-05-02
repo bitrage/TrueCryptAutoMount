@@ -4,7 +4,7 @@ import os
 import shutil
 import TrueCryptAutoMount
 from cx_Freeze import setup, Executable
-from PyQt4 import QtCore
+from PyQt5 import QtCore
  
 app = QtCore.QCoreApplication(sys.argv)
 qt_library_path = QtCore.QCoreApplication.libraryPaths()
@@ -23,7 +23,7 @@ for path in qt_library_path:
 includefiles = [('gui.ui','gui.ui'),
 				('about.ui','about.ui'),
 				('batch.ui','batch.ui'),
-                ('imageformats/qgif4.dll','imageformats/qgif4.dll'),
+                ('imageformats/qgif.dll','imageformats/qgif.dll'),
                 ('icons/ico16.png','icons/ico16.png'),
                 ('icons/ico24.png','icons/ico24.png'),
                 ('icons/ico32.png','icons/ico32.png'),
@@ -39,7 +39,7 @@ includefiles = [('gui.ui','gui.ui'),
                 ('icons/silk/drive_go.png','icons/silk/drive_go.png'),
                 ('icons/silk/drive_error.png','icons/silk/drive_error.png'),
                 ('icons/silk/application_double.png','icons/silk/application_double.png')]
-includes = ['sip', 'PyQt4.QtCore']
+includes = ['sip', 'PyQt5.QtCore']
 build_exe_options = {"icon": "icons/logo.ico", 'include_files': includefiles, 'includes':includes}
 
 # GUI applications require a different base on Windows (the default is for a

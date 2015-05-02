@@ -9,9 +9,9 @@ import functools
 import pythoncom
 import subprocess
 import xml.dom.minidom
-from PyQt4 import QtGui, QtCore, uic
+from PyQt5 import QtGui, QtCore, QtWidgets, uic
 
-__version__ = "0.2.0"
+__version__ = "0.3.0"
 
 # Windows7 Taskbar Grouping (Don't group with Python)
 if platform.system() == 'Windows' and platform.release() == '7':
@@ -32,17 +32,17 @@ class GenericThread(QtCore.QThread):
 		self.function(*self.args,**self.kwargs)
 		return
 
-class About_Dialog(QtGui.QDialog):
+class About_Dialog(QtWidgets.QDialog):
 	def __init__(self, parent=None):
-		QtGui.QDialog.__init__(self, parent)
+		QtWidgets.QDialog.__init__(self, parent)
 		self.ui = uic.loadUi('about.ui', self)
 		self.ui.labelVersion.setText(__version__)
 		self.setModal(True)
 		self.show()
 		
-class BatchCommands_Dialog(QtGui.QDialog):
+class BatchCommands_Dialog(QtWidgets.QDialog):
 	def __init__(self, parent=None, command_list=[]):
-		QtGui.QDialog.__init__(self, parent)
+		QtWidgets.QDialog.__init__(self, parent)
 		self.command_list = command_list
 		
 		self.ui = uic.loadUi('batch.ui', self)
@@ -61,7 +61,7 @@ class BatchCommands_Dialog(QtGui.QDialog):
 		self.show()
 		
 	def getCommandList(self):
-		if QtGui.QDialog.exec_(self) == QtGui.QDialog.Accepted:
+		if QtWidgets.QDialog.exec_(self) == QtWidgets.QDialog.Accepted:
 			text_list = []
 			for i in range(self.ui.listCommands.count()):
 				text_list.append(self.ui.listCommands.item(i).text())
@@ -100,18 +100,22 @@ class BatchCommands_Dialog(QtGui.QDialog):
 	def button_cancel_click_event(self):
 		self.reject()
 		
-class TrueCrypt_AutoMounter(QtGui.QMainWindow):
-	def __init__(self, interface):
-		QtGui.QMainWindow.__init__(self)
+class TrueCrypt_AutoMounter(QtWidgets.QMainWindow):
+
+	thread1_signal = QtCore.pyqtSignal()
+	thread2_signal = QtCore.pyqtSignal()
+
+	def __init__(self, interface, parent=None):
+		QtWidgets.QMainWindow.__init__(self, parent=parent)
 		
 		self.ui = uic.loadUi('gui.ui', self)
-
+		
 		icon = QtGui.QIcon()
 		icon.addFile('icons/ico16.png', QtCore.QSize(16, 16))
 		icon.addFile('icons/ico24.png', QtCore.QSize(24, 24))
 		icon.addFile('icons/ico32.png', QtCore.QSize(32, 32))
 		icon.addFile('icons/ico48.png', QtCore.QSize(48, 48))
-		self.ui.setWindowIcon(icon)
+		self.setWindowIcon(icon)
 		
 		self.interface = interface
 		self.settings = {}
@@ -191,11 +195,11 @@ class TrueCrypt_AutoMounter(QtGui.QMainWindow):
 			self.show()
 		
 		self.thread1 = GenericThread(self.device_plugging_watcher_thread)
-		self.connect(self, QtCore.SIGNAL("device_plugging_watcher_thread()"), self.search_new_drive)
+		self.thread1_signal.connect(self.search_new_drive)
 		self.thread1.start()
 		
 		self.thread2 = GenericThread(self.logical_drive_watcher_thread)
-		self.connect(self, QtCore.SIGNAL("logical_drive_watcher_thread()"), self.treeview_update_drives)
+		self.thread2_signal.connect(self.treeview_update_drives)
 		self.thread2.start()
 		
 	# Events
@@ -227,7 +231,7 @@ class TrueCrypt_AutoMounter(QtGui.QMainWindow):
 			except wmi.x_wmi_timed_out:
 				if event_occured:
 					event_occured = False
-					self.emit(QtCore.SIGNAL('device_plugging_watcher_thread()'))
+					self.thread1_signal.emit()
 				
 	def logical_drive_watcher_thread(self):
 		pythoncom.CoInitialize()
@@ -237,7 +241,7 @@ class TrueCrypt_AutoMounter(QtGui.QMainWindow):
 			new_call = win32api.GetLogicalDriveStrings()
 			if w32_logicaldrives != new_call:
 				w32_logicaldrives = new_call
-				self.emit(QtCore.SIGNAL('logical_drive_watcher_thread()'))
+				self.thread2_signal.emit()
 			
 	# OS interaction and helpers
 	def format_serial_number(self, serial_number):
@@ -423,7 +427,7 @@ class TrueCrypt_AutoMounter(QtGui.QMainWindow):
 	# Menu
 	def action_set_tc_path(self, checked):
 		if checked:
-			self.tc_path = QtGui.QFileDialog.getOpenFileName(parent=self, caption='Select TrueCrypt.exe', filter='TrueCrypt.exe')
+			self.tc_path = QtWidgets.QFileDialog.getOpenFileName(parent=self, caption='Select TrueCrypt.exe', filter='TrueCrypt.exe')
 			if os.path.basename(self.tc_path).lower() != "TrueCrypt.exe".lower():
 				self.ui.actionPath_to_TrueCrypt.setChecked(False)
 				self.tc_path = ""
@@ -431,10 +435,10 @@ class TrueCrypt_AutoMounter(QtGui.QMainWindow):
 			self.tc_path = ""
 			
 	def action_add_default_keyfile(self):
-		keyfile = QtGui.QFileDialog.getOpenFileName(parent=self, caption='Select a TrueCrypt keyfile')
+		keyfile = QtWidgets.QFileDialog.getOpenFileName(parent=self, caption='Select a TrueCrypt keyfile')
 		if keyfile:
 			self.keyfiles.append(keyfile)
-			action = QtGui.QAction(keyfile, self.ui.menuSettings)
+			action = QtWidgets.QAction(keyfile, self.ui.menuSettings)
 			self.ui.menuSettings.addAction(action)
 			action.triggered.connect(self.action_del_default_keyfile)
 			
@@ -473,7 +477,7 @@ class TrueCrypt_AutoMounter(QtGui.QMainWindow):
 		
 	def action_set_default_password(self, checked):
 		if checked:
-			text, ok = QtGui.QInputDialog.getText(self, 'Set a default password', 'Warning! Password is safed as plain text! (Empty passwords work)')
+			text, ok = QtWidgets.QInputDialog.getText(self, 'Set a default password', 'Warning! Password is safed as plain text! (Empty passwords work)')
 			if ok:
 				self.password = text
 			else:
@@ -487,7 +491,7 @@ class TrueCrypt_AutoMounter(QtGui.QMainWindow):
 			
 	def action_load_default_keyfile(self, keyfile):
 		if keyfile:
-			action = QtGui.QAction(keyfile, self.ui.menuSettings)
+			action = QtWidgets.QAction(keyfile, self.ui.menuSettings)
 			self.ui.menuSettings.addAction(action)
 			action.triggered.connect(self.action_del_default_keyfile)
 	
@@ -559,7 +563,7 @@ class TrueCrypt_AutoMounter(QtGui.QMainWindow):
 			self.treeview_set_status_icon(row)
 			
 	def treeview_add_new_drive(self, c, logical_drives, w32_logicaldrives=None):
-		row = QtGui.QTreeWidgetItem()
+		row = QtWidgets.QTreeWidgetItem()
 		row.setIcon(0, self.icons["drive"])
 		row.setText(0, '%s:' % c)
 		drive = "".join((c.upper(), ":"))
@@ -571,7 +575,7 @@ class TrueCrypt_AutoMounter(QtGui.QMainWindow):
 		serial_numbers = [self.drive_dict[drive]["SerialNumber"] for drive in self.drive_dict]
 		if serial_number:
 			if serial_number in serial_numbers:
-				if row.icon(0).serialNumber() == self.icons["drive_add"].serialNumber():
+				if row.icon(0).cacheKey() == self.icons["drive_add"].cacheKey():
 					row.setIcon(3, self.icons["drive_go"])
 				else:
 					row.setIcon(3, self.icons["drive_link"])
@@ -591,12 +595,12 @@ class TrueCrypt_AutoMounter(QtGui.QMainWindow):
 		# Assign Button
 		self.ui.buttonAssign.setEnabled(True)
 		# Mount Button
-		if serial_number and mounted_icon.serialNumber() == self.icons["drive_go"].serialNumber():
+		if serial_number and mounted_icon.cacheKey() == self.icons["drive_go"].cacheKey():
 			self.ui.buttonMount.setEnabled(True)
 		else:
 			self.ui.buttonMount.setEnabled(False)
 		# Dismount Button
-		if serial_number and mounted_icon.serialNumber() == self.icons["drive_link"].serialNumber():
+		if serial_number and mounted_icon.cacheKey() == self.icons["drive_link"].cacheKey():
 			self.ui.buttonDismount.setEnabled(True)
 		else:
 			self.ui.buttonDismount.setEnabled(False)
@@ -656,7 +660,7 @@ class TrueCrypt_AutoMounter(QtGui.QMainWindow):
 		item_count = self.ui.treeVolumeList.topLevelItemCount()
 		for item_index in range(item_count):
 			tree_item = self.ui.treeVolumeList.topLevelItem(item_index)
-			if tree_item.icon(3).serialNumber() == self.icons["drive_go"].serialNumber():
+			if tree_item.icon(3).cacheKey() == self.icons["drive_go"].cacheKey():
 				serial_number = tree_item.text(6)
 				drive_letter = tree_item.text(0)
 				for drive in self.drive_dict.keys():
@@ -732,12 +736,12 @@ class TrueCrypt_AutoMounter(QtGui.QMainWindow):
 	
 	# Systray
 	def create_sys_tray(self):
-		self.sysTray = QtGui.QSystemTrayIcon(self)
+		self.sysTray = QtWidgets.QSystemTrayIcon(self)
 		self.sysTray.setIcon(self.icons["logo"])
 		self.sysTray.setVisible(True)
 		self.sysTray.activated.connect(self.on_sys_tray_activated)
 
-		self.sysTrayMenu = QtGui.QMenu(self)
+		self.sysTrayMenu = QtWidgets.QMenu(self)
 		self.sysTrayMenuActions["Hide"] = self.sysTrayMenu.addAction("Hide")
 		self.sysTrayMenuActions["Hide"].triggered.connect(self.hide)
 		self.sysTrayMenuActions["Show"] = self.sysTrayMenu.addAction("Show")
@@ -749,7 +753,7 @@ class TrueCrypt_AutoMounter(QtGui.QMainWindow):
 			self.sysTrayMenuActions["Hide"].setVisible(False)
 		
 	def on_sys_tray_activated(self, reason):
-		if reason == QtGui.QSystemTrayIcon.DoubleClick:
+		if reason == QtWidgets.QSystemTrayIcon.DoubleClick:
 			if self.isVisible():
 				self.hide()
 			else:
@@ -761,19 +765,20 @@ class TrueCrypt_AutoMounter(QtGui.QMainWindow):
 		drive_letter = tree_item.text(0)
 		drive_name = tree_item.text(4)
 		drive_size = tree_item.text(5)
-		if tree_item.icon(3).serialNumber() == self.icons["drive_go"].serialNumber():
+		if tree_item.icon(3).cacheKey() == self.icons["drive_go"].cacheKey():
 			self.ui.statusbar.showMessage("Drive %s can be assigned to %s (%s)" % (drive_letter, drive_name, drive_size))
-		elif tree_item.icon(3).serialNumber() == self.icons["drive_link"].serialNumber():
+		elif tree_item.icon(3).cacheKey() == self.icons["drive_link"].cacheKey():
 			self.ui.statusbar.showMessage("Drive %s is assigend to %s (%s)" % (drive_letter, drive_name, drive_size))
-		elif tree_item.icon(3).serialNumber() == self.icons["drive_error"].serialNumber():
+		elif tree_item.icon(3).cacheKey() == self.icons["drive_error"].cacheKey():
 			self.ui.statusbar.showMessage("Drive %s currently can't be assigend to %s (%s)" % (drive_letter, drive_name, drive_size))
-		elif tree_item.icon(0).serialNumber() == self.icons["drive_add"].serialNumber():
+		elif tree_item.icon(0).cacheKey() == self.icons["drive_add"].cacheKey():
 			self.ui.statusbar.showMessage("Drive %s currently isn't assigend" % drive_letter)
 		else:
 			self.ui.statusbar.showMessage("Drive %s is a system drive" % drive_letter)
 				
 def on_close(win):
 	win.save_settings()
+	win.sysTray.setVisible(False)
 	print("Goodbye")
 		
 	
@@ -785,7 +790,7 @@ if __name__ == "__main__":
 		# The application is not frozen
 		os.chdir(os.path.dirname(os.path.abspath(__file__)))
 	interface = wmi.WMI()
-	app = QtGui.QApplication(sys.argv)
+	app = QtWidgets.QApplication(sys.argv)
 	win = TrueCrypt_AutoMounter(interface)
 	#win.show()
 	app.aboutToQuit.connect(functools.partial(on_close, win=win))
