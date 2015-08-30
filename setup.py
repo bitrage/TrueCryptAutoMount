@@ -40,7 +40,8 @@ includefiles = [('gui.ui','gui.ui'),
                 ('icons/silk/drive_error.png','icons/silk/drive_error.png'),
                 ('icons/silk/application_double.png','icons/silk/application_double.png')]
 includes = ['sip', 'PyQt5.QtCore']
-build_exe_options = {"icon": "icons/logo.ico", 'include_files': includefiles, 'includes':includes}
+build_dir = os.path.abspath('../build') 
+build_exe_options = {"icon": "icons/logo.ico", 'include_files': includefiles, 'includes':includes, 'build_exe': build_dir}
 
 # GUI applications require a different base on Windows (the default is for a
 # console application).
@@ -53,4 +54,4 @@ setup(  name = "TrueCrypt AutoMount",
         description = "TrueCrypt AutoMount",
         options = {"build_exe": build_exe_options},
         executables = [Executable("TrueCryptAutoMount.py", base=base)])
-		#executables = [Executable("TrueCryptAutoMount.py")])
+        #executables = [Executable("TrueCryptAutoMount.py")])
