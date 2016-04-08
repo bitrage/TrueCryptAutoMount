@@ -4,6 +4,7 @@ import wmi
 import time
 import winreg
 import win32api
+import win32file
 import platform
 import functools
 import pythoncom
@@ -11,7 +12,7 @@ import subprocess
 import xml.dom.minidom
 from PyQt5 import QtGui, QtCore, QtWidgets, uic
 
-__version__ = "0.3.0"
+__version__ = "0.4.0"
 
 # Windows7 Taskbar Grouping (Don't group with Python)
 if platform.system() == 'Windows' and platform.release() == '7':
@@ -262,6 +263,7 @@ class TrueCrypt_AutoMounter(QtWidgets.QMainWindow):
     def get_physical_drives(self):
         w32_drives = self.interface.Win32_DiskDrive()
         w32_partitions = self.interface.Win32_DiskPartition()
+        w32_volumes = self.interface.Win32_Volume()
         drive_dict = {}
         
         for medium in w32_drives:
@@ -281,7 +283,26 @@ class TrueCrypt_AutoMounter(QtWidgets.QMainWindow):
             drive_size = medium.Size
             drive_dict[drive_id] = {"SerialNumber":drive_sn, "Caption":drive_name, "Size":drive_size}
                 
+        for volume in w32_volumes:
+            if volume.DriveType == 3 and not volume.FileSystem:
+                volume_name = volume.DeviceID
+                device_name = win32file.QueryDosDevice(volume_name.replace("\\","").replace("?","")).strip("\x00")
+                drive_dict[device_name] = {"SerialNumber":volume_name, "Caption":"Unidentified Harddisk Volume", "Size":0}
+                
+                
+                
         return drive_dict
+    
+    def update_drive_size(self, drive_letter):
+        w32_logicaldisk = self.interface.Win32_LogicalDisk()
+        for disk in w32_logicaldisk:
+            print(disk.DeviceID.lower(), drive_letter.lower())
+            if disk.DeviceID.lower() == drive_letter.lower():
+                print(self.settings[drive_letter]["Size"])
+                if self.settings[drive_letter]["Size"] == "0 GiB":
+                    drive_size = "%s GiB" % int(int(disk.Size)/1024**3)
+                    self.settings[drive_letter]["Size"] =  drive_size
+                    self.save_settings()
         
     def get_logical_drives(self, w32_logicaldrives=None):
         if not w32_logicaldrives:
@@ -699,6 +720,7 @@ class TrueCrypt_AutoMounter(QtWidgets.QMainWindow):
             switches.append('/p \"%s\"' % password)    # Password (empty string is allowed)
         switches.append('/q')
         subprocess.call('%s %s' % (tc_path, " ".join(switches)), shell=True)
+        self.update_drive_size(drive_letter)
         if drive_letter in self.settings and "PostMountBatch" in self.settings[drive_letter]:
             if self.settings[drive_letter]["PostMountBatch"]:
                 for command in self.settings[drive_letter]["PostMountBatch"]:
