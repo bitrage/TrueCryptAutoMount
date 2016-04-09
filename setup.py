@@ -23,22 +23,7 @@ for path in qt_library_path:
 includefiles = [('gui.ui','gui.ui'),
 				('about.ui','about.ui'),
 				('batch.ui','batch.ui'),
-                ('imageformats/qgif.dll','imageformats/qgif.dll'),
-                ('icons/ico16.png','icons/ico16.png'),
-                ('icons/ico24.png','icons/ico24.png'),
-                ('icons/ico32.png','icons/ico32.png'),
-                ('icons/ico48.png','icons/ico48.png'),
-                ('icons/tc_logo.gif','icons/tc_logo.gif'),
-                ('icons/readme.html','icons/readme.html'),
-                ('icons/silk/drive.png','icons/silk/drive.png'),
-                ('icons/silk/drive_add.png','icons/silk/drive_add.png'),
-                ('icons/silk/drive_cd.png','icons/silk/drive_cd.png'),
-                ('icons/silk/drive_link.png','icons/silk/drive_link.png'),
-                ('icons/silk/drive_network.png','icons/silk/drive_network.png'),
-                ('icons/silk/drive_flash.png','icons/silk/drive_flash.png'),
-                ('icons/silk/drive_go.png','icons/silk/drive_go.png'),
-                ('icons/silk/drive_error.png','icons/silk/drive_error.png'),
-                ('icons/silk/application_double.png','icons/silk/application_double.png')]
+                ('imageformats/qgif.dll','imageformats/qgif.dll')]
 includes = ['sip', 'PyQt5.QtCore']
 build_dir = os.path.abspath('../build') 
 build_exe_options = {"icon": "icons/logo.ico", 'include_files': includefiles, 'includes':includes, 'build_exe': build_dir}

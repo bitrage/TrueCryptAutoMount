@@ -9,10 +9,11 @@ import platform
 import functools
 import pythoncom
 import subprocess
+import images_qrc  # @UnusedImport
 import xml.dom.minidom
 from PyQt5 import QtGui, QtCore, QtWidgets, uic
 
-__version__ = "0.4.1"
+__version__ = "0.4.2"
 
 # Windows7 Taskbar Grouping (Don't group with Python)
 if platform.system() == 'Windows' and platform.release() == '7':
@@ -112,10 +113,10 @@ class TrueCrypt_AutoMounter(QtWidgets.QMainWindow):
         self.ui = uic.loadUi('gui.ui', self)
         
         icon = QtGui.QIcon()
-        icon.addFile('icons/ico16.png', QtCore.QSize(16, 16))
-        icon.addFile('icons/ico24.png', QtCore.QSize(24, 24))
-        icon.addFile('icons/ico32.png', QtCore.QSize(32, 32))
-        icon.addFile('icons/ico48.png', QtCore.QSize(48, 48))
+        icon.addFile(':/window/ico16', QtCore.QSize(16, 16))
+        icon.addFile(':/window/ico24', QtCore.QSize(24, 24))
+        icon.addFile(':/window/ico32', QtCore.QSize(32, 32))
+        icon.addFile(':/window/ico48', QtCore.QSize(48, 48))
         self.setWindowIcon(icon)
         
         self.interface = interface
@@ -141,16 +142,16 @@ class TrueCrypt_AutoMounter(QtWidgets.QMainWindow):
         self.icons = {}
         self.icons["logo"] = icon
         self.icons["blank"] = QtGui.QIcon()
-        self.icons["drive"] = QtGui.QIcon("icons/silk/drive.png")
-        self.icons["drive_add"] = QtGui.QIcon("icons/silk/drive_add.png")
-        self.icons["drive_cd"] = QtGui.QIcon("icons/silk/drive_cd.png")
-        self.icons["drive_link"] = QtGui.QIcon("icons/silk/drive_link.png")
-        self.icons["drive_network"] = QtGui.QIcon("icons/silk/drive_network.png")
-        self.icons["drive_flash"] = QtGui.QIcon("icons/silk/drive_flash.png")
-        self.icons["drive_go"] = QtGui.QIcon("icons/silk/drive_go.png")
-        self.icons["drive_error"] = QtGui.QIcon("icons/silk/drive_error.png")
-        self.icons["application_double"] = QtGui.QIcon("icons/silk/application_double.png")
-        self.icons["logo_big"] = QtGui.QPixmap("icons/tc_logo.gif")
+        self.icons["drive"] = QtGui.QIcon(":/treeview/drive")
+        self.icons["drive_add"] = QtGui.QIcon(":/treeview/drive_add")
+        self.icons["drive_cd"] = QtGui.QIcon(":/treeview/drive_cd")
+        self.icons["drive_link"] = QtGui.QIcon(":/treeview/drive_link")
+        self.icons["drive_network"] = QtGui.QIcon(":/treeview/drive_network")
+        self.icons["drive_flash"] = QtGui.QIcon(":/treeview/drive_flash")
+        self.icons["drive_go"] = QtGui.QIcon(":/treeview/drive_go")
+        self.icons["drive_error"] = QtGui.QIcon(":/treeview/drive_error")
+        self.icons["application_double"] = QtGui.QIcon(":/treeview/application_double")
+        self.icons["logo_big"] = QtGui.QPixmap(":/window/logo_big")
         
         self.ui.labelLogo.setPixmap(self.icons["logo_big"])
         

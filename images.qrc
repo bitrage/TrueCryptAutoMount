@@ -1,0 +1,20 @@
+<RCC>
+  <qresource prefix="window">
+    <file alias="ico16">icons/ico16.png</file>
+    <file alias="ico24">icons/ico24.png</file>
+    <file alias="ico32">icons/ico32.png</file>
+    <file alias="ico48">icons/ico48.png</file>
+    <file alias="logo_big">icons/tc_logo.gif</file>
+  </qresource>
+  <qresource prefix="treeview">
+    <file alias="application_double">icons/silk/application_double.png</file>
+    <file alias="drive">icons/silk/drive.png</file>
+    <file alias="drive_add">icons/silk/drive_add.png</file>
+    <file alias="drive_cd">icons/silk/drive_cd.png</file>
+    <file alias="drive_error">icons/silk/drive_error.png</file>
+    <file alias="drive_flash">icons/silk/drive_flash.png</file>
+    <file alias="drive_go">icons/silk/drive_go.png</file>
+    <file alias="drive_link">icons/silk/drive_link.png</file>
+    <file alias="drive_network">icons/silk/drive_network.png</file>
+  </qresource>
+</RCC>
