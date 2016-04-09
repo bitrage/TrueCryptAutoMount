@@ -12,7 +12,7 @@ import subprocess
 import xml.dom.minidom
 from PyQt5 import QtGui, QtCore, QtWidgets, uic
 
-__version__ = "0.4.0"
+__version__ = "0.4.1"
 
 # Windows7 Taskbar Grouping (Don't group with Python)
 if platform.system() == 'Windows' and platform.release() == '7':
@@ -288,9 +288,7 @@ class TrueCrypt_AutoMounter(QtWidgets.QMainWindow):
                 volume_name = volume.DeviceID
                 device_name = win32file.QueryDosDevice(volume_name.replace("\\","").replace("?","")).strip("\x00")
                 drive_dict[device_name] = {"SerialNumber":volume_name, "Caption":"Unidentified Harddisk Volume", "Size":0}
-                
-                
-                
+        
         return drive_dict
     
     def update_drive_size(self, drive_letter):
@@ -446,25 +444,28 @@ class TrueCrypt_AutoMounter(QtWidgets.QMainWindow):
     # Menu
     def action_set_tc_path(self, checked):
         if checked:
-            self.tc_path = QtWidgets.QFileDialog.getOpenFileName(parent=self, caption='Select TrueCrypt.exe', filter='TrueCrypt.exe')
+            self.tc_path, _ = QtWidgets.QFileDialog.getOpenFileName(parent=self, caption='Select TrueCrypt.exe', filter='TrueCrypt.exe')
             if os.path.basename(self.tc_path).lower() != "TrueCrypt.exe".lower():
                 self.ui.actionPath_to_TrueCrypt.setChecked(False)
                 self.tc_path = ""
         else:
             self.tc_path = ""
+        self.save_settings()
             
     def action_add_default_keyfile(self):
-        keyfile = QtWidgets.QFileDialog.getOpenFileName(parent=self, caption='Select a TrueCrypt keyfile')
+        keyfile, _ = QtWidgets.QFileDialog.getOpenFileName(parent=self, caption='Select a TrueCrypt keyfile')
         if keyfile:
             self.keyfiles.append(keyfile)
             action = QtWidgets.QAction(keyfile, self.ui.menuSettings)
             self.ui.menuSettings.addAction(action)
             action.triggered.connect(self.action_del_default_keyfile)
+            self.save_settings()
             
     def action_del_default_keyfile(self):
         action = self.sender()
         self.keyfiles.remove(action.text())
         self.ui.menuSettings.removeAction(action)
+        self.save_settings()
             
     def action_set_autostart(self, checked):
         if checked:
@@ -479,6 +480,7 @@ class TrueCrypt_AutoMounter(QtWidgets.QMainWindow):
             print("Start minimized on")
         else:
             print("Start minimized off")
+        self.save_settings()
             
     def action_set_automount_onstart(self, checked):
         self.automount_onstart = checked
@@ -486,6 +488,7 @@ class TrueCrypt_AutoMounter(QtWidgets.QMainWindow):
             print("Automount on start on")
         else:
             print("Automount on start off")
+        self.save_settings()
             
     def action_set_automount_onconnect(self, checked):
         self.automount_onconnect = checked
@@ -493,6 +496,7 @@ class TrueCrypt_AutoMounter(QtWidgets.QMainWindow):
             print("Automount on connect on")
         else:
             print("Automount on connect off")
+        self.save_settings()
         
     def action_set_default_password(self, checked):
         if checked:
@@ -503,6 +507,7 @@ class TrueCrypt_AutoMounter(QtWidgets.QMainWindow):
                 self.ui.actionDefault_Password.setChecked(False)
         else:
             self.password = None
+        self.save_settings()
     
     def actions_load_default_keyfiles(self):
         for keyfile in self.keyfiles:
@@ -650,6 +655,7 @@ class TrueCrypt_AutoMounter(QtWidgets.QMainWindow):
         self.settings[tree_item.text(0)] = {'SerialNumber': serial_number, 'Name': drive_name, 'Size': drive_size, 'PostMountBatch': ''}
         self.treeview_set_status_icon(tree_item)
         self.enable_buttons(tree_item)
+        self.save_settings()
         
     def button_unassign_click_event(self):
         tree_item = self.ui.treeVolumeList.currentItem()
@@ -660,6 +666,7 @@ class TrueCrypt_AutoMounter(QtWidgets.QMainWindow):
         tree_item.setIcon(7, self.icons["blank"])
         self.treeview_set_status_icon(tree_item)
         self.enable_buttons(tree_item)
+        self.save_settings()
         
     def button_mount_click_event(self):
         self.drive_dict = self.get_physical_drives()
@@ -708,6 +715,7 @@ class TrueCrypt_AutoMounter(QtWidgets.QMainWindow):
                 tree_item.setIcon(7, self.icons["application_double"])
             else:
                 tree_item.setIcon(7, self.icons["blank"])
+            self.save_settings()
     
     # TrueCrypt interaction
     def mount_drive(self, tc_path, volume, drive_letter, keyfiles=[], password=None):
