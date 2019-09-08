@@ -146,6 +146,11 @@
      </column>
      <column>
       <property name="text">
+       <string>Free</string>
+      </property>
+     </column>
+     <column>
+      <property name="text">
        <string>Serial Number</string>
       </property>
      </column>
