@@ -37,7 +37,10 @@ class Partition(object):
 
     @property
     def partition_index(self):
-        return self.win32_diskpartition.Index + 1
+        offset = 1
+        if self.is_gpt:
+            offset += 1
+        return self.win32_diskpartition.Index + offset
 
     @property
     def disk_index(self):
@@ -74,7 +77,11 @@ class Partition(object):
 
     @property
     def size_str(self):
-        return "%s GiB" % int(int(self.size)/1024**3)
+        return "%s GiB" % int(int(self.size) / 1024 ** 3)
+
+    @property
+    def is_gpt(self):
+        return self.win32_diskpartition.Type.startswith("GPT")
 
     def _get_win32_logicaldisk(self):
         for win32_logicaldisk in self.win32_logicaldisks:

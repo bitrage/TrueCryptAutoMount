@@ -1,4 +1,4 @@
-''' Copyright (c) 2014-2018, Felix Heide
+''' Copyright (c) 2014-2023, Felix Heide
 
     This file is part of TrueCrypt AutoMount.
 
@@ -16,4 +16,4 @@
     along with TrueCrypt AutoMount.  If not, see <http://www.gnu.org/licenses/>.
 '''
 
-__version__ = "0.5.1"
+__version__ = "0.5.2"
